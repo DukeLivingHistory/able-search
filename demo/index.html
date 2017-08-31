@@ -1638,7 +1638,35 @@
       01:02:30.000 --> 01:03:55.000
       <v DANA PRIEST>  Thank you for having me.
       `
-      ableplayerSearch('#video', '#search', transcript)
+
+      var description = `WEBVTT
+
+      00:00:00.000 --> 00:00:01.000
+      The interview begins
+
+      00:31:00.000 --> 00:31:01.000
+      The interview is about halfway over
+
+      01:02:30.000 --> 01:03:55.000
+      The interview ends`;
+
+      var duration = 3836 // this must be hardcoded since it's otherwise unavailable for YouTube videos
+
+      ableplayerSearch('#video', '#search', transcript, {
+        color: 'red',
+        duration: duration
+      })
+      .then(function(player){
+        ableplayerSearch(player, '#search', description, {
+          color: 'white',
+          duration: duration,
+          display: 'dot',
+          width: 3
+        })
+      }).catch(function(err){
+        console.log(err)
+      })
     </script>
+
   </body>
 </html>

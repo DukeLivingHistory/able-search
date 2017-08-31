@@ -26,8 +26,9 @@ const convertTimeStampToSeconds = (timestamp) => {
  * @return {[type]}        [description]
  */
 const parseCaptions = (source) => {
+  console.log(source.substr(20, 30))
   const regexp     = /(?:\d\d:)?\d\d:\d\d.\d\d\d \-\-\> (?:\d\d:)?\d\d:\d\d.\d\d\d\n(?:.*)/g
-  const matches    = transcript.match(regexp)
+  const matches    = source.match(regexp)
   const timestamps = []
 
   if(!matches) throw new Error(`Transcript does not contain properly formatted captions`)
@@ -41,9 +42,8 @@ const parseCaptions = (source) => {
     const end   = convertTimeStampToSeconds(submatches[2])
 
     timestamps.push({ text, start, end })
-
   })
-  console.log(timestamps)
+
   return timestamps
 
 }
@@ -96,7 +96,9 @@ window.ableplayerSearch = (player, searchbar, sources, opts = {}) => {
   return new Promise((resolve, reject) => {
     try {
       const defaultOpts = {
-
+        color:   '#ffffff',
+        width:   2,
+        display: 'line'
       }
 
       const mergedOpts = Object.assign({}, defaultOpts, opts)
@@ -108,20 +110,25 @@ window.ableplayerSearch = (player, searchbar, sources, opts = {}) => {
         const $searchbar = $(searchbar)
         const $seekbar   = $player.find('.able-seekbar')
         const captions   = []
-        //const duration   = player.media.duration // This breaks for YouTube videos
+        const duration   = opts.duration || player.media.duration // Allow for hard-coded durations in the case of videos from YouTube
 
-        const duration = 3856
+        let uniqueId // Generate a unique ID so that keyup events only affect one instance
 
         if(typeof sources === 'array'){
+          const first = sources[0]
+          uniqueId = first.text.substr(first.length - 10)
           sources.map(source => {
             captions.push(...parseCaptions(source))
           })
         } else {
+          uniqueId = sources.substr(sources.length - 10)
           captions.push(...parseCaptions(sources))
         }
 
+        console.log(uniqueId, captions)
+
         $searchbar.on('keyup', function(){
-          $('.able-indicator').remove()
+          $(`[data-search-id="${uniqueId}"]`).remove()
 
           const val = $(this).val().toUpperCase()
 
@@ -134,18 +141,42 @@ window.ableplayerSearch = (player, searchbar, sources, opts = {}) => {
 
           matches.map(match => {
             const { text, start, end } = match
-            const $dot = $(`<div class="able-indicator"></div>`)
+            const { width, color, display, height } = mergedOpts
 
-            $dot.css({
-              top: 0,
+            const $dot = $(`<div class="able-indicator" data-search-id="${uniqueId}"></div>`)
+
+            const styles = {
+              dot: {
+                top:          '50%',
+                marginTop:    width / -2 + 'px',
+                marginLeft:   width / -2 + 'px',
+                height:       width + 'px',
+                borderRadius: '100%',
+              },
+              line: height ? {
+                top:       '50%',
+                transform: 'translateY(-50%)',
+                height:    height
+              } : {
+                top:    0,
+                bottom: 0
+              }
+            }
+
+            const defaultStyles = {
               position:     'absolute',
               left:         (start / duration * 100) + '%',
-              width:        ((end - start)) / 10 + '%',
-              height:       '6px',
-              borderRadius: '100%',
-              background:   'yellow',
-              minWidth:     '6px'
-            })
+              width:        width + 'px',
+              background:   color,
+              zIndex:       5000
+            }
+
+            const mergedStyles = Object.assign({}, defaultStyles, styles[display])
+
+            $dot.on('click keydown', () => {
+              player.seekTo(start)
+              player.playMedia()
+            }).css(mergedStyles)
 
             $seekbar.append($dot)
 

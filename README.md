@@ -22,7 +22,9 @@ ableplayerAddDots(player, transcript, [opts])
 * **display:** `dot` or `line`. The visual style to be used for markers. Default `line`.
 * **color:** Hex code or CSS color alias to be used for markers. Default `'#ffffff'`.
 * **width:** Size in pixels to be used for markers. Default `6`.
+* **height:** Size in pixels to be used for markers. Ignored unless `display` is set to `line`;
 * **format:** `chapters`, `titles`, or `array`. `chapters` expects chapter headings to be on a new line after timestamps. `titles` expects chapter headings to be on a new line **before** timestamps. `array` expects an array of objects with `text` and `start` properties, as shown below. Default `chapters`.
+* **duration:** Only should be supplied for YouTube videos, as a workaround for not being available. Should be provided as an integer representing the number of seconds.
 
 ```
 {
