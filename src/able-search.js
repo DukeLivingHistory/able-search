@@ -26,14 +26,16 @@ const convertTimeStampToSeconds = (timestamp) => {
  * @return {[type]}        [description]
  */
 const parseCaptions = (source) => {
-  const regexp     = /(?:\d\d:)?\d\d:\d\d.\d\d\d \-\-\> (?:\d\d:)?\d\d:\d\d.\d\d\d\n(?:.*)/g
+  console.log(source)
+  const regexp     = /(?:\d\d:)?\d\d:\d\d.\d\d\d \-\-\> (?:\d\d)?:\d\d:\d\d.\d\d\d[\r\n]+(?:.*)/g
   const matches    = source.match(regexp)
   const timestamps = []
+
 
   if(!matches) throw new Error(`Transcript does not contain properly formatted captions`)
 
   matches.map(match => {
-    const subregexp = /((?:\d\d:)?\d\d:\d\d.\d\d\d) \-\-\> ((?:\d\d:)?\d\d:\d\d.\d\d\d)\n(.*)/
+    const subregexp = /((?:\d\d:)?\d\d:\d\d.\d\d\d) \-\-\> ((?:\d\d:)?\d\d:\d\d.\d\d\d)[\r\n]+(.*)/
     const submatches = match.match(subregexp)
 
     const text  = submatches[3]
