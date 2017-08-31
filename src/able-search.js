@@ -26,7 +26,6 @@ const convertTimeStampToSeconds = (timestamp) => {
  * @return {[type]}        [description]
  */
 const parseCaptions = (source) => {
-  console.log(source.substr(20, 30))
   const regexp     = /(?:\d\d:)?\d\d:\d\d.\d\d\d \-\-\> (?:\d\d:)?\d\d:\d\d.\d\d\d\n(?:.*)/g
   const matches    = source.match(regexp)
   const timestamps = []
@@ -114,18 +113,16 @@ window.ableplayerSearch = (player, searchbar, sources, opts = {}) => {
 
         let uniqueId // Generate a unique ID so that keyup events only affect one instance
 
-        if(typeof sources === 'array'){
+        if(typeof sources === 'string'){
+          uniqueId = sources.substr(sources.length - 10)
+          captions.push(...parseCaptions(sources))
+        } else {
           const first = sources[0]
           uniqueId = first.text.substr(first.length - 10)
           sources.map(source => {
-            captions.push(...parseCaptions(source))
+            captions.push(source)
           })
-        } else {
-          uniqueId = sources.substr(sources.length - 10)
-          captions.push(...parseCaptions(sources))
         }
-
-        console.log(uniqueId, captions)
 
         $searchbar.on('keyup', function(){
           $(`[data-search-id="${uniqueId}"]`).remove()
