@@ -1,6 +1,6 @@
-# Able-Timestamps
+# Able-Search
 
-able-timestamps is an extension for [Able Player](https://github.com/able-player/able-player) that adds chapter-based indicator dots to the seekbar that can be used to navigate the video. The dots can be provided in the form of a specific WebVTT chapter file, as titles in a WebVTT caption file, or as an array of text/timestamp pairs.
+able-search is an extension for [Able Player](https://github.com/able-player/able-player) that adds chapter-based indicator dots to the seekbar that can be used to navigate the video. The dots can be provided in the form of a specific WebVTT chapter file, as titles in a WebVTT caption file, or as an array of text/timestamp pairs.
 
 ## Usage
 
@@ -11,6 +11,7 @@ This script must be included after jQuery and Able Player. It can be called as s
 ```
 /**
  * {string|object} player       Selector to instantiate a new AblePlayer instance OR an existing AblePlayer object.
+ * {string}        search       Selector for the searchbar input.
  * {string|array}  transcript   WebVTT text OR an array of objects with text and start properties. In the latter case, pass format: 'array' as a property of the opts object.
  * {object}        opts         Options object, optional. See below for more detail.
  */
