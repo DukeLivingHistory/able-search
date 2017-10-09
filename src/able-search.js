@@ -1,5 +1,7 @@
 require('es6-promise').polyfill()
 
+console.log('...')
+
 /**
  * Takes a timestamp formatted hh:mm:ss:MMM or mm:ss:MMM and returns value in seconds
  * @param  {string} timestamp Timestamp
@@ -27,10 +29,9 @@ const convertTimeStampToSeconds = (timestamp) => {
  */
 const parseCaptions = (source) => {
   console.log(source)
-  const regexp     = /(?:\d\d:)?\d\d:\d\d.\d\d\d \-\-\> (?:\d\d)?:\d\d:\d\d.\d\d\d[\r\n]+(?:.*)/g
+  const regexp     = /(?:\d\d:)?\d\d:\d\d.\d\d\d \-\-\> (?:\d\d:)?\d\d:\d\d.\d\d\d[\r\n]+(?:.*)/g
   const matches    = source.match(regexp)
   const timestamps = []
-
 
   if(!matches) throw new Error(`Transcript does not contain properly formatted captions`)
 
@@ -42,10 +43,14 @@ const parseCaptions = (source) => {
     const start = convertTimeStampToSeconds(submatches[1])
     const end   = convertTimeStampToSeconds(submatches[2])
 
-    timestamps.push({ text, start, end })
+    return {
+      text,
+      start,
+      end
+    }
   })
 
-  return timestamps
+  return matches
 
 }
 
@@ -113,18 +118,23 @@ window.ableplayerSearch = (player, searchbar, sources, opts = {}) => {
         const captions   = []
         const duration   = opts.duration || player.media.duration // Allow for hard-coded durations in the case of videos from YouTube
 
-        let uniqueId // Generate a unique ID so that keyup events only affect one instance
+        const uniqueId = ((Math.random() * 10000)|0).toString()
+
+        console.log(sources)
 
         if(typeof sources === 'string'){
-          uniqueId = sources.substr(sources.length - 10)
           captions.push(...parseCaptions(sources))
         } else {
-          const first = sources[0]
-          uniqueId = first.text.substr(first.length - 10)
           sources.map(source => {
-            captions.push(source)
+            const { text, start, end } = source
+            captions.push({
+              text,
+              start: convertTimeStampToSeconds(start)
+            })
           })
         }
+
+        uniqueId.replace(/[\s\n\r]/g, '')
 
         $searchbar.on('keyup', function(){
           $(`[data-search-id="${uniqueId}"]`).remove()
@@ -162,12 +172,14 @@ window.ableplayerSearch = (player, searchbar, sources, opts = {}) => {
               }
             }
 
+            console.log(start, duration)
+
             const defaultStyles = {
               position:     'absolute',
               left:         (start / duration * 100) + '%',
               width:        width + 'px',
               background:   color,
-              zIndex:       5000
+              zIndex:       1000000
             }
 
             const mergedStyles = Object.assign({}, defaultStyles, styles[display])
